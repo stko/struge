@@ -1,0 +1,5 @@
+main:
+    inner:
+        - component
+component:
+    inner: button
