@@ -1,5 +1,14 @@
 main:
+    title: A Struge Example
     inner:
-        - component
-component:
+        - button_1
+        - button_2
+    layout: page
+
+button_1:
+    label: Click Me 1 !
+    inner: button
+
+button_2:
+    label: Click Me 2 !
     inner: button

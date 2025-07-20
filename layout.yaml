@@ -1,0 +1,47 @@
+page: '<!DOCTYPE html>
+
+  <html lang="en">
+
+  <head>
+
+      <title>{{ item.title }}</title>
+
+  </head>
+
+  <body>
+
+      <ul id="navigation">
+
+      {% for item in navigation %}
+
+          <li><a href="{{ item.href }}">{{ item.caption }}</a></li>
+
+      {% endfor %}
+
+      </ul>
+
+      <h1>{{ item.title }}</h1>
+
+      {{ inner }}
+
+      {# a comment #}
+
+  </body>
+
+  </html>'
+
+clickbutton:  '
+    <button
+    
+        id="{{item.name}}"
+
+        name="{{item.name}}"
+
+        style=" {% for key, value in item["style"].items() %} {{key}}={{value}} {% endfor %}"
+        >
+
+        {{item.label}}
+
+    </button>
+    
+    '
