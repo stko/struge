@@ -14,6 +14,7 @@ class Node(dict):
     object_count = 0
     component_count= 0
     layout_count = 0
+    reference_count = 0
     def __init__(
         self,
         parent,
@@ -101,8 +102,22 @@ class Node(dict):
     def eval_single_node(
         self, node_name, model: dict, components: dict, layout: dict, is_component: bool
     ):
-
-        if node_name in model:
+        if isinstance(node_name, dict):
+            # if the node is a dict, we create a new node with the name
+            Node.reference_count += 1
+            first_node_name = list(node_name.keys())[0]
+            node_name=node_name[first_node_name]
+            first_node_name= f"{first_node_name}_{Node.reference_count}"
+            return Node(
+                self,
+                struge_name=first_node_name,
+                own_node=node_name,
+                model=model,
+                components=components,
+                layouts=layout,
+                is_component=is_component,
+            )
+        elif node_name in model:
             return Node(
                 self,
                 struge_name=node_name,
@@ -152,10 +167,10 @@ class Layout:
     """
 
     def __init__(
-        self, main_file_path: str, components_file_path: str, layout_file_path_str
+        self, project_file_path: str, components_file_path: str, implementation_file_path: str
     ):
         try:
-            with open(main_file_path, encoding="utf8") as fin:
+            with open(project_file_path, encoding="utf8") as fin:
                 self.main = oyaml.load(fin, Loader=oyaml.Loader)
         except:
             self.main = {}
@@ -165,7 +180,7 @@ class Layout:
         except:
             self.components = {}
         try:
-            with open(layout_file_path_str, encoding="utf8") as fin:
+            with open(implementation_file_path, encoding="utf8") as fin:
                 self.layout = oyaml.load(fin, Loader=oyaml.Loader)
         except:
             self.layout = {}
@@ -192,7 +207,7 @@ if __name__ == "__main__":
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
     parser.add_argument(
-        "-m", "--main", help="the main yaml build layout", default="main.yaml"
+        "-p", "--project", help="the main yaml project layout", default="project.yaml"
     )
     parser.add_argument(
         "-c",
@@ -201,11 +216,17 @@ if __name__ == "__main__":
         default="components.yaml",
     )
     parser.add_argument(
-        "-l", "--layout", help="the  yaml layout instructions", default="layout.yaml"
+        "-i", "--implementation", help="the  yaml implementation instructions", default="implementation.yaml"
+    )
+    parser.add_argument(
+        "-o", "--output", help="the generated output", default="dist/index.html"
     )
 
     args = parser.parse_args()
-    layout = Layout(args.main, args.components, args.layout)
+    layout = Layout(args.project, args.components, args.implementation)
     layout._parse()
-    print(json.dumps(layout.structure,sort_keys=True, indent=4))
-    print(layout.structure.get_content())
+    #print(json.dumps(layout.structure,sort_keys=True, indent=4))
+    content = layout.structure.get_content()
+    with open(args.output, "w", encoding="utf8") as fout:
+        fout.write(content)
+    print(content)
