@@ -1,14 +1,7 @@
 main:
-    title: A Struge Example
+    title: "Struge Exsample Project"
     inner:
-        - button_1
-        - button_2
-    layout: page
-
-button_1:
-    label: Click Me 1 !
-    inner: button
-
-button_2:
-    label: Click Me 2 !
-    inner: button
+        - c_h2_header:
+            text: "My first text"
+        - c_h3_header:
+            text: "My second text"

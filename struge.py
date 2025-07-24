@@ -1,7 +1,6 @@
 from typing import Optional
 
 import argparse
-from copy import copy
 import json
 from jinja2 import Environment
 import oyaml
@@ -15,6 +14,7 @@ class Node(dict):
     component_count= 0
     layout_count = 0
     reference_count = 0
+
     def __init__(
         self,
         parent,
@@ -23,7 +23,6 @@ class Node(dict):
         model: dict,
         components: dict,
         layouts: dict,
-        is_component: bool,
     ):
         self.struge_name = struge_name
         self.parent = parent
@@ -115,7 +114,6 @@ class Node(dict):
                 model=model,
                 components=components,
                 layouts=layout,
-                is_component=is_component,
             )
         elif node_name in model:
             return Node(
@@ -125,7 +123,6 @@ class Node(dict):
                 model=model,
                 components=components,
                 layouts=layout,
-                is_component=False,
             )
         elif node_name in components:
             Node.component_count += 1
@@ -136,7 +133,6 @@ class Node(dict):
                 model=model,
                 components=components,
                 layouts=layout,
-                is_component=True,
             )
         elif node_name in layout:
             Node.layout_count += 1
@@ -148,7 +144,6 @@ class Node(dict):
                 model=model,
                 components=components,
                 layouts=layout,
-                is_component=True,
             )
         else:
             return node_name
@@ -198,7 +193,6 @@ class Layout:
             self.main,
             self.components,
             self.layout,
-            False,
         )
 
 
@@ -225,7 +219,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     layout = Layout(args.project, args.components, args.implementation)
     layout._parse()
-    #print(json.dumps(layout.structure,sort_keys=True, indent=4))
+    print(json.dumps(layout.structure,sort_keys=True, indent=4))
     content = layout.structure.get_content()
     with open(args.output, "w", encoding="utf8") as fout:
         fout.write(content)
