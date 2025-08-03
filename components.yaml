@@ -2,7 +2,7 @@ c_h2_header:
     layout: header
     size: h2
 
-c_h3_header_:
+c_h3_header:
     layout: header
     size: h3
 

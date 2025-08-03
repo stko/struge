@@ -39,6 +39,7 @@ class Node(dict):
         if isinstance(own_node, str):
             self.content = own_node
         else:
+
             for key, value in own_node.items():
                 if key == "inner":
                     self.inner = self.eval_inner(value, model, components, layouts, True)
@@ -108,17 +109,15 @@ class Node(dict):
             Node.reference_count += 1
             first_node_name = list(node_name.keys())[0]
             print("dict name", first_node_name)
-            node_name=node_name[first_node_name]
-            #first_node_name= f"{first_node_name}_{Node.reference_count}"
-            print(first_node_name, node_name)
-            return Node(
-                self,
-                struge_name=first_node_name,
-                own_node=node_name,
-                model=model,
-                components=components,
-                layouts=layout,
-            )
+            sub_node=node_name[first_node_name]
+            new_node= self.eval_single_node(first_node_name,model,components,layout,True)
+            if  isinstance(new_node, dict):
+                for key, value in sub_node.items():
+                    if key not in ["name", "inner", "layout"]:
+                        if key.startswith("~"):
+                            key = key[1:]  # remove the write protection
+                        new_node[key] = value
+            return new_node
         elif node_name in model:
             return Node(
                 self,

@@ -54,7 +54,99 @@ This build is done with the help of the `Jinja Template Engine`
 ## Struge and the Jinja Template Engine
 The [Jinja Template Engine](https://jinja.palletsprojects.com/en/stable/templates/) allows to take a textual template (everything is possible, as long it is any kind of text) and inject some data into it, which is provided by the Struge data objects.
 
+Explained by a use case (which are the included sample files):
+
+We have a `project.yaml` file:
+
+```
+main:
+    title: "Struge Example Project"
+    layout: page
+    inner:
+        - c_h2_header:
+            text: "My first text"
+        - c_h3_header:
+            text: "My second text"
+        - p_list    
+
+p_list:
+    layout: list
+    list_items:
+        - list element 1
+        - list element 2
+        - list element 3 
+```
+
+a `components.yaml` file:
+
+```
+c_h2_header:
+    layout: header
+    size: h2
+
+c_h3_header:
+    layout: header
+    size: h3
+
+```
+
+and a `implementation.yaml` file:
+
+```
+page: '<html>
+
+  <head>
+
+      <title>{{ item.title }}</title>
+
+  </head>
+
+  <body>
+
+     {{ inner }}
+
+  </body>
+
+  </html>'
 
 
+header: '<{{ item.size }}>{{ item.text }}</{{ item.size }}>'
+
+list: '<ul>
+    
+    {% for li in item.list_items %}
+    <li>{{ li }}
+    
+    {% endfor %}
+    </ul>'
+
+```
+
+which will finally generate the following result `dist/index.html`
+
+```
+<html>
+<head>
+<title>Struge Example Project</title>
+</head>
+<body>
+<h2>My first text</h2><h3>My second text</h3><ul>
+ <li>list element 1
+ <li>list element 2
+ <li>list element 3
+ </ul>
+</body>
+</html>
+```
 
 
+Let's start with the `project.yaml`. It contains at least a `main` element, which is always the starting point. It may also contain some more other elements.
+
+As naming convention all elements (except `main`) which are in the project itself are named with a leading `p_`, all components with a leading `c_`.
+
+All elements can have any properties as needed, but there are two reserved property names which are needed to calculate the results. These both are `layout` and `inner`. Their meanings are explained below.
+
+
+So as the starting point, the `main` element is evaluated. When an element contains some `inner`, then these element references will recursively followed to finally compose the whole element tree. 
+
+propeerty inheritance
