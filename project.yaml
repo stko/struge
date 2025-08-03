@@ -1,7 +1,16 @@
 main:
-    title: "Struge Exsample Project"
+    title: "Struge Example Project"
+    layout: page
     inner:
         - c_h2_header:
             text: "My first text"
         - c_h3_header:
             text: "My second text"
+        - p_list    
+
+p_list:
+    layout: list
+    list_items:
+        - list element 1
+        - list element 2
+        - list element 3 

@@ -101,12 +101,16 @@ class Node(dict):
     def eval_single_node(
         self, node_name, model: dict, components: dict, layout: dict, is_component: bool
     ):
+        print(node_name)
         if isinstance(node_name, dict):
+            print("is dict")
             # if the node is a dict, we create a new node with the name
             Node.reference_count += 1
             first_node_name = list(node_name.keys())[0]
+            print("dict name", first_node_name)
             node_name=node_name[first_node_name]
-            first_node_name= f"{first_node_name}_{Node.reference_count}"
+            #first_node_name= f"{first_node_name}_{Node.reference_count}"
+            print(first_node_name, node_name)
             return Node(
                 self,
                 struge_name=first_node_name,
@@ -147,11 +151,6 @@ class Node(dict):
             )
         else:
             return node_name
-
-    def create_copy(
-        self, own_node, model: dict, components: dict, layout: dict, is_component: bool
-    ):
-        pass
 
 
 class Layout:

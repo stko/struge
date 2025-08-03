@@ -1,8 +1,4 @@
-page: '<!DOCTYPE html>
-
-  <html lang="en">
-
-    <meta charset="UTF-8">
+page: '<html>
 
   <head>
 
@@ -19,4 +15,13 @@ page: '<!DOCTYPE html>
   </html>'
 
 
-header: '<{{ item.size }}>{{ item.text }}</div>'
+header: '<{{ item.size }}>{{ item.text }}</{{ item.size }}>'
+
+list: '<ul>
+    
+    {% for li in item.list_items %}
+    <li>{{ li }}
+    
+    {% endfor %}
+    </ul>'
+
