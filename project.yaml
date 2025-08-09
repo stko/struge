@@ -6,6 +6,8 @@ main:
             text: "My first text"
         - c_h3_header:
             text: "My second text"
+        - c_h3_header_with_protected_text:
+            text: "My third text"
         - p_list    
 
 p_list:

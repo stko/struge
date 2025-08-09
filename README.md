@@ -8,7 +8,7 @@ Let's say you want to generate a layout mockup for a new web application. For th
 
 Another approach could be tools like the Qt designer, but that requires at least anything like some player software for everybody who want to take a look into the design.
 
-When then finally look into the web design tools, then you normally need to decide first with which toolbox (Vue, jQueryIU, Nuvt ect.) you want to go, before you can sketch your first design ideas, but if you want to do some sketches first and decide on the implementation later, then you have not much choise as to write the (html-) sources first by hand.
+When then finally looking into the web design tools, then you normally need to decide first with which toolbox (Vue, jQueryIU, Nuvt ect.) you want to go, before you can sketch your first design ideas, but if you want to do some sketches first and decide on the implementation later, then you have not much choice as to write the (html-) sources first by hand.
 
 But when writing more complex html structures just with a text editor, you'll probertly find that it is quite time consuming and anouying  to play around with nested html elements and all its variants of class and style properties. Each time when something need to be modified, you have to carefully change the elements without destroying the nested structures or to find and modify all affected html elements.
 
@@ -46,10 +46,10 @@ This file is optional. Whenever some elements shall be used in multiple projects
 ### implementation.yaml
 This file finally contains everything which is needed to calculate the final implementation of a project.
 
-This file can also contain element definitions, but its main purpose is to contain the layout instruction of how to make the final source codes out of the given project and components properties.
+This file can also contain element definitions, but its main purpose is to contain the layout instruction of how to build the final output out of the given project and components properties.
 
 
-This build is done with the help of the `Jinja Template Engine` 
+This build is done with the help of the [Jinja Template Engine](https://jinja.palletsprojects.com/en/stable/templates/) 
 
 ## Struge and the Jinja Template Engine
 The [Jinja Template Engine](https://jinja.palletsprojects.com/en/stable/templates/) allows to take a textual template (everything is possible, as long it is any kind of text) and inject some data into it, which is provided by the Struge data objects.
@@ -67,6 +67,8 @@ main:
             text: "My first text"
         - c_h3_header:
             text: "My second text"
+        - c_h3_header_with_protected_text:
+            text: "My third text"
         - p_list    
 
 p_list:
@@ -87,6 +89,12 @@ c_h2_header:
 c_h3_header:
     layout: header
     size: h3
+
+
+c_h3_header_with_protected_text:
+    layout: header
+    size: h3
+    ~text: "This text is protected and will not be overridden by the parent."
 
 ```
 
@@ -130,7 +138,7 @@ which will finally generate the following result `dist/index.html`
 <title>Struge Example Project</title>
 </head>
 <body>
-<h2>My first text</h2><h3>My second text</h3><ul>
+<h2>My first text</h2><h3>My second text</h3><h3>This text is protected and will not be overridden by the parent.</h3><ul>
  <li>list element 1
  <li>list element 2
  <li>list element 3
@@ -144,9 +152,51 @@ Let's start with the `project.yaml`. It contains at least a `main` element, whic
 
 As naming convention all elements (except `main`) which are in the project itself are named with a leading `p_`, all components with a leading `c_`.
 
-All elements can have any properties as needed, but there are two reserved property names which are needed to calculate the results. These both are `layout` and `inner`. Their meanings are explained below.
+All elements can have any properties as needed, but there are two reserved property names which are used to calculate the results. These both are `layout` and `inner`. Their meanings are explained below.
 
 
-So as the starting point, the `main` element is evaluated. When an element contains some `inner`, then these element references will recursively followed to finally compose the whole element tree. 
+So as the starting point, the `main` element is evaluated. When an element contains some `inner`, then these element references will recursively followed to finally compose the whole element tree.
 
-propeerty inheritance
+To pass through properties from parent elements down to their final implementation, a principle called `property inheritance` is used
+
+## Property Inheritance
+Each property of a parent is copied to it's childs. In the above example this is done with the `text` property to feed its value through into the final implementation output.
+
+When needed, it can be avoided that a child property will be overwritten by its parent by name the child property with a leading `~` like done in the example with the text property of the `c_h3_header_with_protected_text` component.
+
+## Final Layout Implementation
+
+After the above mention parent - child tree have been build and all properties have be inheritated, the final implementation will be calculated. This is done recusively from bottom to top in the following way:
+
+When a node contains a `inner` element, then these inner nodes are calculated first. They return some content which is taken as the inner content of a node. When then the node also contains a `layout` instruction, then the node properties and its previously calculated inner content is used to feed the [Jinja Template Engine](https://jinja.palletsprojects.com/en/stable/templates/) with it.
+
+In pseudo code, this would be like this:
+
+     the_node_content = jinja_template_evaluation(item, inner)
+
+where `item` is the node itself, and `inner` is the previously calculated inner content of the node.
+
+These two variables are then evaluated by the jinja engine inside the given template, like we do for the headers with the `header` template in 
+
+     header: '<{{ item.size }}>{{ item.text }}</{{ item.size }}>'
+
+where the node (=item) `size` and `text` properties are used the generate a html header element.
+
+Thanks to the powerful jinja engine, we can access all elements of the node and e.g. iterate through all its `list_items` to generate a html list like this:
+
+```
+list: '<ul>
+    
+    {% for li in item.list_items %}
+    <li>{{ li }}
+    
+    {% endfor %}
+    </ul>'
+
+```
+
+Finally whereever we want to fill the output with the inner content of the node, we simply can use the `inner` variable in our template which represents the inner content
+
+    {{ inner }}
+
+

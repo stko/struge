@@ -7,3 +7,9 @@ c_h3_header:
     size: h3
 
 
+c_h3_header_with_protected_text:
+    layout: header
+    size: h3
+    ~text: "This text is protected and will not be overridden by the parent."
+
+
